@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="f1tenth_verification" name="verification_node" type="verification_node.py" output="screen">
+    </node>
+</launch>

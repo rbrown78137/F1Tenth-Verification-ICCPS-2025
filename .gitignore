@@ -1,0 +1,4 @@
+models/**
+saved_data/**
+.vscode
+**/__pycache__/

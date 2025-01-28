@@ -1,0 +1,161 @@
+from multiprocessing import Process, Pipe
+import rospy
+from std_msgs.msg import Float64MultiArray
+from sensor_msgs.msg import Image
+import os
+import verification.verification_node.calculations as calculations 
+import matplotlib.pyplot as plt
+import numpy as np
+from StarV.set.probstar import ProbStar
+from gazebo_msgs.msg import ModelStates
+import tf.transformations
+import verification.verification_node.verification_constants as constants
+import math
+from ackermann_msgs.msg import AckermannDriveStamped
+import time
+
+camera_topic = "/camera/color/image_raw"
+nav_drive_topic = "/vesc/high_level/ackermann_cmd_mux/input/nav_0"
+model_topic = "/gazebo/model_states"
+publish_collision_topic = "/prob_collision"
+
+pipes = []
+information_pipe = None
+dt= 0.2
+# prob_collisions = [[],[],[],[],[]]
+# last_data = [0,0,0,0,0,0,0,0]
+# collision_1 = []
+# collision_2 = []
+# collision_3 = []
+# collision_4 = []
+# collision_5 = []
+
+def calculation_processor(connection):
+    rospy.init_node("verification_publisher "+str(os.getpid()))
+    prob_publisher = rospy.Publisher(publish_collision_topic, Float64MultiArray, queue_size=1)
+    connection.send(True)
+    while True:
+        step_in_future,time_start,last_pose_estimate,last_control,velocity_estimate = connection.recv()
+        prob_collisions = calculations.probability_collision_next_n_steps(1,step_in_future,dt,last_pose_estimate,last_control,velocity_estimate)
+        for prob_collision in prob_collisions:
+            publish_data = Float64MultiArray
+            publish_data.data = [step_in_future,time_start,prob_collision]
+            prob_publisher.publish(publish_data)
+        connection.send(True)
+
+def calculation_dispatcher(dispatcher_connections,process_connections):
+    while True:
+        received_data = dispatcher_connections.recv()
+        for i in range(len(process_connections)):
+            if process_connections[i].poll():
+                process_connections[i].recv()
+                process_connections[i].send(received_data)
+                break
+
+def image_callback(image):
+    pass
+    #information_pipe.send(1)
+def control_output_callback(navigation_topic):
+    constants.last_control_data = [navigation_topic.drive.speed, navigation_topic.drive.steering_angle]
+    constants.used_data = False
+def pose_callback(pose):
+    if not constants.used_data:
+        pi_car_yaw = 0
+        omega_car_yaw = 0
+        pi_car_coordinates = (0,0)
+        omega_car_coordinates = (0,0)
+        for index in range(len(pose.name)):
+            if pose.name[index] == "f1tenth_car":
+                quaternion = (
+                pose.pose[index].orientation.x,
+                pose.pose[index].orientation.y,
+                pose.pose[index].orientation.z,
+                pose.pose[index].orientation.w
+                )
+                euler = tf.transformations.euler_from_quaternion(quaternion)
+                pi_car_yaw = euler[2]
+                pi_car_coordinates = (pose.pose[index].position.x,pose.pose[index].position.y)
+            if pose.name[index] == "red_car":
+                quaternion = (
+                pose.pose[index].orientation.x,
+                pose.pose[index].orientation.y,
+                pose.pose[index].orientation.z,
+                pose.pose[index].orientation.w
+                )
+                euler = tf.transformations.euler_from_quaternion(quaternion)
+                omega_car_yaw = euler[2]
+                omega_car_coordinates = (pose.pose[index].position.x,pose.pose[index].position.y)
+        pi_car_yaw = pi_car_yaw - math.pi/2
+        omega_car_yaw = omega_car_yaw - math.pi/2
+        coord_diff = (omega_car_coordinates[0] - pi_car_coordinates[0], omega_car_coordinates[1] - pi_car_coordinates[1])
+        new_angle = constants.wrapAngle(omega_car_yaw - pi_car_yaw)
+        new_coords = (coord_diff[0]*math.cos(pi_car_yaw)+coord_diff[1]*math.sin(pi_car_yaw),-coord_diff[0]*math.sin(pi_car_yaw) + coord_diff[1]*math.cos(pi_car_yaw))
+        last_data = [new_coords[0],new_coords[1],math.sin(new_angle),math.cos(new_angle),0.1, 0.3, 0.047, 0.047]
+        probs_collision = calculations.probability_collision_next_n_steps(5,.1,last_data,constants.last_control_data,0.5)
+        constants.used_data = True
+        collision_1.append(probs_collision[0])
+        collision_2.append(probs_collision[1])
+        collision_3.append(probs_collision[2])
+        collision_4.append(probs_collision[3])
+        collision_5.append(probs_collision[4])
+        debug_var = 0
+        if debug_var >0:
+            x = range(len(collision_1))
+            plt.plot(x,collision_1,color="red", label= "1 Step")
+            plt.plot(x,collision_2,color="blue", label= "2 Step")
+            plt.plot(x,collision_3,color="green", label= "3 Step")
+            plt.plot(x,collision_4,color="yellow", label= "4 Step")
+            plt.plot(x,collision_5,color="purple", label= "5 Step")
+            # plt.plot(x,collisions,color="red")
+            plt.xlabel("Frame")
+            plt.ylabel("Probability Of Collision")
+            plt.title("Probability of Collision In Future Steps")
+            plt.savefig('foo.png')
+            debug_point_2 = 1
+def setupROS():
+    rospy.init_node('verification_node')
+    rospy.Subscriber(camera_topic, Image, image_callback)
+    rospy.Subscriber(nav_drive_topic,AckermannDriveStamped, control_output_callback)
+    rospy.Subscriber(model_topic, ModelStates, pose_callback)
+    rospy.spin()
+
+if __name__ == '__main__':
+    number_worker_processes = 4
+    processes = []
+    for index in range(number_worker_processes):
+        parent_connection, child_connection = Pipe()
+        pipes.append(parent_connection)
+        processes.append(Process(target=calculation_processor, args=(child_connection,)))
+        processes[index].start()
+    parent_connection,child_connection = Pipe()
+    information_pipe = parent_connection
+    dispatcher_process = Process(target=calculation_dispatcher, args=(child_connection, pipes))
+    dispatcher_process.start()
+    setupROS()
+    # start = time.time()
+    # star_calculations = 1
+    # collisions_1 = calculations.probability_collision_next_n_steps(star_calculations,.2,[.5,1,0,1,0.1,0.1,.1,.1],[0.5,0],0.25)
+    # end = time.time()
+    # print(end-start)
+    # collisions_2 = calculations.probability_collision_next_n_steps(star_calculations,.2,[.5,1,0,1,0.2,0.2,.1,.1],[0.5,0],0.25)
+    # collisions_3 = calculations.probability_collision_next_n_steps(star_calculations,.2,[.5,1,0,1,0.1,0.1,.2,.2],[0.5,0],0.25)
+    # x = range(star_calculations)
+    # plt.plot(x,collisions_1,color="red")
+    # plt.plot(x,collisions_2,color="blue")
+    # plt.plot(x,collisions_3,color="green")
+    # # plt.plot(x,collisions,color="red")
+    # plt.xlabel("Time Steps in Future")
+    # plt.ylabel("Probability Of Collision")
+    # plt.show()
+
+    # collisions_1 = calculations.probability_collision_next_n_steps(star_calculations,.2,[0,1,0,1,0.1,0.1,.1,.1],[0.5,0],0.25)
+    # collisions_2 = calculations.probability_collision_next_n_steps(star_calculations,.2,[0,1,0,1,0.2,0.2,.1,.1],[0.5,0],0.25)
+    # collisions_3 = calculations.probability_collision_next_n_steps(star_calculations,.2,[0,1,0,1,0.1,0.1,.2,.2],[0.5,0],0.25)
+    # x = range(star_calculations)
+    # plt.plot(x,collisions_1,color="red")
+    # plt.plot(x,collisions_2,color="blue")
+    # plt.plot(x,collisions_3,color="green")
+    # # plt.plot(x,collisions,color="red")
+    # plt.xlabel("Time Steps in Future")
+    # plt.ylabel("Probability Of Collision")
+    # plt.show()

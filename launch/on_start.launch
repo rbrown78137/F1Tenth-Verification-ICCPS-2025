@@ -1,0 +1,8 @@
+<launch>
+    <!--<include file="$(find f1tenth_verification)/launch/camera.launch" />-->
+    <!-- <include file="$(find f1tenth_verification)/launch/verification_node.launch" /> -->
+    <include file="$(find f1tenth_verification)/launch/object_tracking_node.launch" />
+    <!-- <include file="$(find f1tenth_verification)/launch/collision_verification_node.launch" /> -->
+    <include file="$(find f1tenth_verification)/launch/visualize_verification.launch" />
+    <!-- <include file="$(find f1tenth_verification)/launch/manual_control.launch" /> -->
+</launch>

@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="f1tenth_verification" name="manual_control" type="manual_control.py" output="screen">
+    </node>
+</launch>

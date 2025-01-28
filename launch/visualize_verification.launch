@@ -1,0 +1,27 @@
+<launch>
+    <node pkg="f1tenth_verification" name="live_collision_verification_plotter" type="live_probability_of_collision_recorder.py" output="screen">
+    </node>
+    <node pkg="f1tenth_verification" name="live_bounding_box_recorder" type="live_bounding_box_recorder.py" output="screen">
+    </node>
+    <node pkg="f1tenth_verification" name="live_probstar_projection_recorder" type="live_probstar_projection_recorder.py" output="screen">
+    </node>
+    <node pkg="f1tenth_verification" name="live_semantic_segmentation_recorder" type="live_semantic_segmentation_recorder.py" output="screen">
+    </node>
+    <!-- <node pkg="f1tenth_verification" name="different_velocity_prob_collision_recorder" type="different_velocity_prob_collision_recorder.py" output="screen">
+    </node> -->
+    <!-- <node pkg="f1tenth_verification" name="different_steering_angle_prob_collision_recorder" type="different_steering_angle_prob_collision_recorder.py" output="screen">
+    </node>
+    <node pkg="f1tenth_verification" name="different_braking_forces_prob_collision_recorder" type="different_braking_forces_prob_collision_recorder.py" output="screen">
+    </node> -->
+</launch>
+
+<!-- <launch>
+    <node pkg="f1tenth_verification" name="bounding_box_plotter" type="bounding_box_plotter.py" output="screen">
+    </node>
+    <node pkg="f1tenth_verification" name="constraint_plotter" type="constraint_plotter.py" output="screen">
+    </node>
+    <node pkg="f1tenth_verification" name="live_prob_plotter" type="live_prob_plotter.py" output="screen">
+    </node>
+    <node pkg="f1tenth_verification" name="semantic_segmentation" type="semantic_segmentation.py" output="screen">
+    </node>
+</launch> -->
