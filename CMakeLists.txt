@@ -38,11 +38,6 @@ catkin_install_python(PROGRAMS
 )
 
 catkin_install_python(PROGRAMS
-  scripts/verification/collision_verification_plotter/density_plot_recorder.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-catkin_install_python(PROGRAMS
   scripts/verification/collision_verification_plotter/live_probstar_projection_recorder.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
@@ -51,15 +46,4 @@ catkin_install_python(PROGRAMS
   scripts/verification/collision_verification_plotter/live_semantic_segmentation_recorder.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-catkin_install_python(PROGRAMS
-  scripts/verification/collision_verification_plotter/different_velocity_prob_collision_recorder.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-catkin_install_python(PROGRAMS
-  scripts/verification/collision_verification_plotter/different_steering_angle_prob_collision_recorder.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-catkin_install_python(PROGRAMS
-  scripts/verification/collision_verification_plotter/different_braking_forces_prob_collision_recorder.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+
