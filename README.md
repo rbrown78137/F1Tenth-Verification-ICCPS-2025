@@ -17,3 +17,5 @@ All of these python files can be run a is and should produce similar or identica
 When running the paper figure scripts, run them from the F1Tenth-Verification-ICCPS-2025 so that the .pkl files are able to find the correct path.
 For example:
 python3 scripts/verification/paper_figure_scripts/figure_5_path_prediction_comparison.py
+
+SEE THE ATTACHED DOCKER FILE FOR ANY ISSUES RELATED TO INSTALLATION
