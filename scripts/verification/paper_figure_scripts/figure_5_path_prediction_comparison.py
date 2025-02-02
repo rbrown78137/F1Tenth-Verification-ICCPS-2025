@@ -30,7 +30,7 @@ if __name__ == "__main__":
     with open('saved_data/ground_truth_pose.pkl','rb') as f:
         ground_truth_data = pickle.load(f)
 
-    with open('saved_data/new_video/frame_history_3.pkl','rb') as f:
+    with open('saved_data/paper_samples/frame_history_3.pkl','rb') as f:
         prediction_data = pickle.load(f)
 
     ground_truth_x_positions = []

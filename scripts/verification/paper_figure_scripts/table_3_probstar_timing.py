@@ -1,11 +1,12 @@
 import time
 import verification.collision_verification.collision_probability as collision_probability
 import verification.collision_verification.initial_state as initial_state
-from fast_pool import FastPool
+from verification.collision_verification.fast_pool import FastPool
+import verification.collision_verification.collision_verification_constants as constants
 import pickle
 
 if __name__ == "__main__":
-    print("Timings in miliseconds\n")
+    print("Timings in miliseconds:\n")
     reachability_dt = 0.1
     pose_dt_history =[0,0.1,0.2]
     model_sub_time_steps = 10
@@ -85,19 +86,22 @@ if __name__ == "__main__":
     inputs = [[n,0,reachability_dt,model_sub_time_steps,X_0,sigma_0,U_0]] * 100
     prob  = fast_pool.map(collision_probability.multi_core_future_collision_probabilites, inputs) 
     end_7 = time.time()
-    print(f"Multi-core, 100 Star : {1000*(end_7-start_7)}")
-
-    time.sleep(4)
-    print("\nSleeping for 4 seconds for processes to start up.\n")
+    print(f"Multi-core, 100 Star : {1000*(end_7-start_7)}\n")
     #initial state creation
+    print("20 Samples of Initial State:")
+
+    # Constants ensure timing of original initial state as described in paper
+    constants.POSES_TO_AVERAGE_POSITION = 1
+    constants.STEERING_AND_VELOCITY_PREDICTIONS_TO_AVERAGE = 1
+
     with open('saved_data/paper_samples/frame_history_3.pkl','rb') as f:
         prediction_data = pickle.load(f)
+        idx_of_interest = 180 # Some random point near the middle of the clip
         for idx in range(20):
-            idx_of_interest = 180 # Some random point in the middle of the clip
             start_time = time.time()
             X_0, sigma_0, U_0 = initial_state.initial_state(prediction_data[idx_of_interest][1][0],prediction_data[idx_of_interest][1][1],prediction_data[idx_of_interest][1][2])
             end_time = time.time()
-            print(f"Initial State Time: {1000*(end_time-start_time)}")
+            print(f"Initial State Creation Time: {1000*(end_time-start_time)}")
 
     fast_pool.shutdown()
     
