@@ -12,7 +12,7 @@ if __name__ == "__main__":
     constants.OMEGA_CAR_LENGTH = 0.540363
     constants.OMEGA_CAR_WIDTH = 0.298078
     # x .298078 y 0.540363 z:0.259901
-    print("Timings in miliseconds\n")
+    print("Timings in miliseconds (please wait 25 seconds for process startup) \n")
     reachability_dt = 0.25
     # pose_dt_history =[0,1,2]
     # model_sub_time_steps = 10

@@ -1,4 +1,5 @@
 from multiprocessing import Process, Pipe
+# During implementation, we had issues with the default multiprocessing pool. This file is now likely unnecesary and can be removed.
 class FastPool:
     def __init__(self,process_count):
         self.process_count = process_count

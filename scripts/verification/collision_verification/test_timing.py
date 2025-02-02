@@ -5,7 +5,7 @@ from fast_pool import FastPool
 import pickle
 
 if __name__ == "__main__":
-    print("Timings in miliseconds\n")
+    print("Timings in miliseconds (please wait 25 seconds for process startup)\n")
     reachability_dt = 0.1
     pose_dt_history =[0,0.1,0.2]
     model_sub_time_steps = 10
@@ -17,31 +17,34 @@ if __name__ == "__main__":
     actuation_data_neg_2 = [0.5,0]
     pose_history =[pose_data_0,pose_data_neg_1,pose_data_neg_2]
     actuation_history =[actuation_data_0,actuation_data_neg_1, actuation_data_neg_2]
+    
+
+    #Timing can be off for the first few run predictionsm so we run a few calculations before the timing to correct for these issues
     n = 1
     for i in range(10):
         probabilities_1 = collision_probability.single_thread_future_collision_probabilites(n,0,reachability_dt,model_sub_time_steps,pose_history,actuation_history,pose_dt_history)
-    # Single Core Test Results
     
+    # Single Core Test Results 
     n = 1
-    # start_1 = time.time()
-    # probabilities_1 = collision_probability.single_thread_future_collision_probabilites(n,0,reachability_dt,model_sub_time_steps,pose_history,actuation_history,pose_dt_history)
-    # end_1 = time.time()
-    # print(f"One Core, 1 Star : {1000*(end_1-start_1)}")
-    # n = 10
-    # start_2 = time.time()
-    # probabilities_2 = collision_probability.single_thread_future_collision_probabilites(n,0,reachability_dt,model_sub_time_steps,pose_history,actuation_history,pose_dt_history)
-    # end_2 = time.time()
-    # print(f"One Core, 10 Star : {1000*(end_2-start_2)}")
-    # n = 100
-    # start_3 = time.time()
-    # probabilities_3 = collision_probability.single_thread_future_collision_probabilites(n,0,reachability_dt,model_sub_time_steps,pose_history,actuation_history,pose_dt_history)
-    # end_3 = time.time()
-    # print(f"One Core, 100 Star : {1000*(end_3-start_3)}")
-    # n = 1000
-    # start_4 = time.time()
-    # probabilities_4 = collision_probability.single_thread_future_collision_probabilites(n,0,reachability_dt,model_sub_time_steps,pose_history,actuation_history,pose_dt_history)
-    # end_4 = time.time()
-    # print(f"One Core, 1000 Star : {1000*(end_4-start_4)}")
+    start_1 = time.time()
+    probabilities_1 = collision_probability.single_thread_future_collision_probabilites(n,0,reachability_dt,model_sub_time_steps,pose_history,actuation_history,pose_dt_history)
+    end_1 = time.time()
+    print(f"One Core, 1 Star : {1000*(end_1-start_1)}")
+    n = 10
+    start_2 = time.time()
+    probabilities_2 = collision_probability.single_thread_future_collision_probabilites(n,0,reachability_dt,model_sub_time_steps,pose_history,actuation_history,pose_dt_history)
+    end_2 = time.time()
+    print(f"One Core, 10 Star : {1000*(end_2-start_2)}")
+    n = 100
+    start_3 = time.time()
+    probabilities_3 = collision_probability.single_thread_future_collision_probabilites(n,0,reachability_dt,model_sub_time_steps,pose_history,actuation_history,pose_dt_history)
+    end_3 = time.time()
+    print(f"One Core, 100 Star : {1000*(end_3-start_3)}")
+    n = 1000
+    start_4 = time.time()
+    probabilities_4 = collision_probability.single_thread_future_collision_probabilites(n,0,reachability_dt,model_sub_time_steps,pose_history,actuation_history,pose_dt_history)
+    end_4 = time.time()
+    print(f"One Core, 1000 Star : {1000*(end_4-start_4)}")
 
     # Multiple Core Test Results
     fast_pool = FastPool(20)
@@ -85,8 +88,9 @@ if __name__ == "__main__":
     print(f"Multi-core, 100 Star : {1000*(end_7-start_7)}")
 
     time.sleep(4)
+
     #initial state creation
-    with open('saved_data/old_video/frame_history_3.pkl','rb') as f:
+    with open('saved_data/paper_samples/frame_history_3.pkl','rb') as f:
         prediction_data = pickle.load(f)
         for idx in range(20):
             idx_of_interest = 180 # Was 160

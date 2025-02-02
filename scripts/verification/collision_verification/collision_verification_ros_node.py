@@ -59,7 +59,6 @@ def pose_callback(pose_data):
         pose_time_history.insert(0,sensor_pose_time)
     last_logged_time = sensor_pose_time
     sensor_global_variable_lock.release()
-    # print(f"Pose Data Array: {pose_data.data}")
     
 
 def sigint_handler(arg1,arg2):
@@ -74,7 +73,6 @@ def odom_callback(odom_data):
     sensor_global_variable_lock.acquire()
     recieved_control_from_sensor = [speed,rotation]
     sensor_global_variable_lock.release()
-    # print(f"Recieved Speed: {speed} Yaw: {rotation}")
 
 def process_reachability_step():
     global sensor_global_variable_lock, fast_pool,pose_history,actuation_history,pose_time_history
@@ -84,14 +82,10 @@ def process_reachability_step():
     copy_pose_time_history = copy.deepcopy(pose_time_history)
     sensor_global_variable_lock.release()
     start_time = time.time()
-    # print(f"Processing Reachability Step:{current_pose_from_perception, current_control_from_sensor}")
+    
     if len(copy_pose_history)>0 and len(copy_pose_time_history)>0:
-        # TEMP DEBUG LINES VV
         float_formatter = "{:.2f}".format
         np.set_printoptions(formatter={'float_kind':float_formatter})
-        # print(f"Inputs: Pose history: {pose_history} Actuation History: {actuation_history} Pose dt history: {pose_dt_history}")
-        # TEMP DEBUG LINES ^^
-
         # Initial state seperated from probstar calculation due to gradient and hessian being incalculable in python multiprocessing library
         X_0,sigma_0,U_0 = initial_state.initial_state(copy_pose_history,copy_actuation_history,copy_pose_time_history)
         inputs = [[1,k,constants.REACHABILITY_DT,constants.MODEL_SUBTIME_STEPS,X_0,sigma_0,U_0] for k in range(constants.K_STEPS)] 

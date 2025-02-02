@@ -26,9 +26,6 @@ def initial_state(prefiltered_pose_history,prefiltered_actuation_history, prefil
         mu_zeta_omega,sigma_zeta_omega,mu_V_omega = estimate_omega_velocity_steering_2_points_with_angle(pose_history, actuation_history, pose_time_history)
     # if "-1" in pose_history and "-2" in pose_history and not SOLVE_USING_ANGLE_DTHETA:
     #     mu_zeta_omega,sigma_zeta_omega,mu_V_omega = estimate_omega_velocity_steering_3(pose_history, actuation_history, pose_dt_history)
-    # print(f"steering: {round(mu_zeta_omega,3)}, V:{round(mu_V_omega,3)}")
-    # print(f"Predicted V:{round(actuation_history[0][0],3)}")
-    # print(f"Algo V:{round(mu_V_omega,3)}")
     V_pi = actuation_history[0][0]
     zeta_pi = actuation_history[0][1]
 
@@ -37,6 +34,7 @@ def initial_state(prefiltered_pose_history,prefiltered_actuation_history, prefil
     mu_varphi_y_pi,sigma_varphi_y_pi = approximate_function_distribution(pi_varphi_y_calculation,pi_inputs)
     mu_varphi_x_omega,sigma_varphi_x_omega = 0,0
     mu_varphi_y_omega,sigma_varphi_y_omega = 1,0
+
     if len(pose_history)>0 and len(pose_history[0])>0:
         dist_theta_i = [pose_history[0][2],pose_history[0][6]]
         dist_theta_j = [pose_history[0][3],pose_history[0][7]]
@@ -130,6 +128,7 @@ def estimate_omega_velocity_steering_2_points_with_angle(pose_history, actuation
         dist_y_1 = [mean(pose_1_array[1]),mean(pose_1_array[5])]
         dist_theta_i_1 = [mean(pose_1_array[2]),mean(pose_1_array[6])]
         dist_theta_j_1 = [mean(pose_1_array[3]),mean(pose_1_array[7])]
+
         # Calculate steering angle and velocity using distributions for two poses [x_2,y_2,theta_i_2,theta_j_2] and [x_1,y_1,theta_i_1,theta_j_1]
         mu_zeta,sigma_zeta,mu_V = 0,0,0
         if is_car_moving(dist_x_2[0],dist_y_2[0],dist_theta_i_2[0],dist_theta_j_2[0],dist_x_1[0],dist_y_1[0],constants.MINIMUM_VELOCITY_CLIPPING_VALUE * pose_dt):
@@ -155,17 +154,14 @@ def estimate_omega_velocity_steering_2_points_with_angle(pose_history, actuation
     average_steering_angle = 0
     average_steering_angle_deviation = 0
     average_velocity = 0
+
     if len(steering_angles)>0:
         average_steering_angle = mean(steering_angles) 
         average_steering_angle_deviation = mean(steering_angle_deviations) 
         average_velocity = mean(velocities) 
-    # print(*velocities)
 
-    if np.isnan(average_steering_angle):
+    if np.isnan(average_steering_angle) or np.isnan(average_steering_angle_deviation):
         mu_zeta,sigma_zeta = non_dist_steering_angle_estimate_2_points_with_angle(*input_distribution)
-        debug_var_1 = 0
-    if np.isnan(average_steering_angle_deviation):
-        debug_var_1 = 0
     return average_steering_angle,average_steering_angle_deviation,average_velocity
 
 
@@ -182,8 +178,6 @@ def translate_past_points_to_current_reference_frame(pose_history,actuation_hist
             s_pi = actuation_history[i][1]
             B_pi = math.atan(math.tan(s_pi) / 2)
             V_pi = (actuation_history[i][0] + actuation_history[i][0])/2
-            # print(f"Act Data{actuation_history[i][0]}")
-            # V_pi = 0
             dt = abs(pose_time_history[i]-pose_time_history[i+1])
         
             # x_y_z = variable x in time step y in reference frame of t=z
@@ -387,8 +381,6 @@ if __name__ == "__main__":
     pose_history =[pose_data_0, pose_data_neg_1, pose_data_neg_2]
     actuation_history =[actuation_data_0, actuation_data_neg_1, actuation_data_neg_2]
     X_0,sigma_0,U_0 = initial_state(pose_history,actuation_history,pose_dt_history)
-    # while(True):
-    #     X_0,sigma_0,U_0 = initial_state(pose_history,actuation_history,pose_dt_history)
 
     pose_dt_history = [0,1,2]
     pose_data_0 = [0, 1.35, 0, 1, 0.01, 0.01, 0.01, 0.01]
