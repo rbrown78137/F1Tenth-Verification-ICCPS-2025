@@ -13,4 +13,7 @@ The entire collsion verification algorithm can be run at runtime with collision_
 To run the object detection and pose detection pipeline, run object_tracking_node.launch or scripts/verification/object_tracking_node/object_tracking_node.py
 
 To recreate the results from each figure in the paper, see the directory scripts/verification/paper_figure_scripts
-All of these python files can be run a is and should produce similar or identical results based on the configuration of the host computer
+All of these python files can be run a is and should produce similar or identical results based on the configuration of the host computer.
+When running the paper figure scripts, run them from the F1Tenth-Verification-ICCPS-2025 so that the .pkl files are able to find the correct path.
+For example:
+python3 scripts/verification/paper_figure_scripts/figure_5_path_prediction_comparison.py
