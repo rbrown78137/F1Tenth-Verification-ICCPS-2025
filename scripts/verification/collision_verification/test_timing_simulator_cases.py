@@ -50,7 +50,7 @@ if __name__ == "__main__":
     inputs = [[1,i,reachability_dt,model_sub_time_steps,X_0,sigma_0,U_0] for i in range(16)] 
     prob  = fast_pool.map(collision_probability.multi_core_future_collision_probabilites, inputs)
     end = time.time()
-    print(f"Simulator Example 1:{prob}")
+    print(f"Simulator Example 1:{max(prob)}")
     print(f"Simulator Example 1 Time:{end-start}")
     # Single Core Test Results
     

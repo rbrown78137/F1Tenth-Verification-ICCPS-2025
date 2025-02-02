@@ -5,7 +5,7 @@ from fast_pool import FastPool
 import pickle
 
 if __name__ == "__main__":
-    print("Timings in miliseconds (please wait 25 seconds for process startup)\n")
+    print("Timings in miliseconds\n")
     reachability_dt = 0.1
     pose_dt_history =[0,0.1,0.2]
     model_sub_time_steps = 10
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     actuation_history =[actuation_data_0,actuation_data_neg_1, actuation_data_neg_2]
     
 
-    #Timing can be off for the first few run predictionsm so we run a few calculations before the timing to correct for these issues
+    #Timing can be off for the first few run predictions so we run a few calculations before the timing to correct for these issues
     n = 1
     for i in range(10):
         probabilities_1 = collision_probability.single_thread_future_collision_probabilites(n,0,reachability_dt,model_sub_time_steps,pose_history,actuation_history,pose_dt_history)
@@ -49,6 +49,7 @@ if __name__ == "__main__":
     # Multiple Core Test Results
     fast_pool = FastPool(20)
     # Sleep for process creation
+    print("\nSleeping for 25 seconds for processes to start up.\n")
     time.sleep(25)
 
     test_time = time.time()
@@ -57,7 +58,6 @@ if __name__ == "__main__":
     prob  = fast_pool.map(collision_probability.multi_core_future_collision_probabilites, inputs) 
     test_time = time.time()
 
-    print("\nSleeping for 25 seconds for processes to start up.\n")
     n=1
     start_4 = time.time()
     X_0,sigma_0,U_0 = initial_state.initial_state(pose_history,actuation_history,pose_dt_history)
@@ -88,16 +88,16 @@ if __name__ == "__main__":
     print(f"Multi-core, 100 Star : {1000*(end_7-start_7)}")
 
     time.sleep(4)
-
+    print("\nSleeping for 4 seconds for processes to start up.\n")
     #initial state creation
     with open('saved_data/paper_samples/frame_history_3.pkl','rb') as f:
         prediction_data = pickle.load(f)
         for idx in range(20):
-            idx_of_interest = 180 # Was 160
+            idx_of_interest = 180 # Some random point in the middle of the clip
             start_time = time.time()
             X_0, sigma_0, U_0 = initial_state.initial_state(prediction_data[idx_of_interest][1][0],prediction_data[idx_of_interest][1][1],prediction_data[idx_of_interest][1][2])
             end_time = time.time()
-            print(f"Initial State Time:{1000*(end_time-start_time)}")
+            print(f"Initial State Time: {1000*(end_time-start_time)}")
 
     fast_pool.shutdown()
     

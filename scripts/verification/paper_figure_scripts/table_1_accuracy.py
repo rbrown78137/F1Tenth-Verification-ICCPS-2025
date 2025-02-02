@@ -33,14 +33,14 @@ def get_veloctiy_estimate(ground_truth_data, index_of_interest):
     x_2 = ground_truth_data[index_of_interest][1]
     y_2 = ground_truth_data[index_of_interest][2]
     return math.sqrt((x_2-x_1)**2 + (y_2-y_1)**2) / (t_2-t_1)
+
 if __name__ == "__main__":
     ground_truth_data = None
     prediction_data = None
 
     with open('saved_data/ground_truth_pose.pkl','rb') as f:
         ground_truth_data = pickle.load(f)
-
-    with open('saved_data/new_video/frame_history_3.pkl','rb') as f:
+    with open('saved_data/paper_samples/frame_history_3.pkl','rb') as f:
         prediction_data = pickle.load(f)
 
     x_error = []
