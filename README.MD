@@ -18,18 +18,32 @@ When running the paper figure scripts, run them from the F1Tenth-Verification-IC
 For example:
 python3 scripts/verification/paper_figure_scripts/figure_5_path_prediction_comparison.py
 
+Due to file size limits, the models were not uploaded to this GitHub page. Please see the link below to download the models. If the python files throw an issue related to not being able to find the paths of the models, insert the models in this package under a directory called models such that the path to the pose detection network would be F1Tenth-Verification-ICCPS-2025/models/pose.pt
+
+https://www.dropbox.com/scl/fo/kqn1flcei9jmgardlpg65/AGUYHXuho2Bg8wPR-IGvDSU?rlkey=zwd3zutdkq7d3j57460zuzrym&dl=0
+
 SEE THE ATTACHED DOCKER FILE FOR ANY ISSUES RELATED TO INSTALLATION
 
 ASSUMING DOCKER IS INSTALLED, THE BELOW EXAMPLE SHOWS HOW TO RUN ONE OF THE PYTHON SCRIPTS IN FULL FROM DOCKER
 
 docker build -t f1tenth_verification .
+
 ./docker_share_x11.sh
+
 cd home/catkin_ws/src/F1Tenth-Verification-ICCPS-2025
+
 python3 scripts/verification/paper_figure_scripts/figure_5_path_prediction_comparison.py
+
 python3 scripts/verification/paper_figure_scripts/figure_6_3d_danger_area.py
+
 python3 scripts/verification/paper_figure_scripts/figure_6_prob_collision_graph.py
+
 python3 scripts/verification/paper_figure_scripts/figure_7_different_braking_forces.py
+
 python3 scripts/verification/paper_figure_scripts/figure_7_different_steering_angles.py
+
 python3 scripts/verification/paper_figure_scripts/table_1_accuracy.py
+
 python3 scripts/verification/paper_figure_scripts/table_3_probstar_timing.py
+
 python3 scripts/verification/paper_figure_scripts/table_4_probstar.py
